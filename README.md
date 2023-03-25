@@ -4,7 +4,7 @@
 
 ## Description
 
-An employee tarcker using mySQL12
+An employee tracker using mySQL12
 
 ## Table of Contents
 
