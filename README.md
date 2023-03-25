@@ -29,6 +29,10 @@ npm i
 
 Open terminal and navigate to directory then run node index.js and follow prompts.
 
+<video width="320" height="240" controls>
+  <source src="video.mov" type="video/mp4">
+</video>
+
 ## License
 
       Copyright © MIT. All rights reserved.
