@@ -1,93 +1,53 @@
-const { prompt } = require("inquirer");
-const db = require("./db/index");
+const inquirer = require("inquirer");
+const db = require("./db/index.js");
 require("console.table");
-
 
 init();
 
-// initial function
+//Begin function with node index.js
 function init() {
-    runPrompts();
+    questions();
 }
-
-function runPrompts() {
-    prompt([
+//Inquirer prompt sequence
+function questions() {
+    inquirer.prompt([
         {
-            // Load these prompts
-            type: "list",
             name: "choice",
             message: "What would you like to do?",
-            choices: [
-                {
-                    name: "View All Departments",
-                    value: "VIEW_DEPARTMENTS"
-                },
-                {
-                    name: "View All Roles",
-                    value: "VIEW_ROLES"
-                },
-                {
-                    name: "View All Employees",
-                    value: "VIEW_EMPLOYEES"
-                },
+            type: "list",
+            choices: ["view all departments", "view all roles", "view all employees", "add a department", "add a role, add an employee", "update employee role", "quit"]
 
-                {
-                    name: "Add a Department",
-                    value: "ADD_DEPARTMENT"
-                },
-                {
-                    name: "Add a Role",
-                    value: "ADD_ROLE"
-                },
-                {
-                    name: "Add an Employee",
-                    value: "ADD_EMPLOYEE"
-                },
-                {
-                    name: "Update Employee Role",
-                    value: "UPDATE_EMPLOYEE_ROLE"
-                },
-                {
-                    name: "Quit",
-                    value: "QUIT"
-                }
-            ]
-        }
-
-    ]).then(res => {
-        let choice = res.choice;
-        // Call the functions from what the user selects
-        switch (choice) {
-            case "VIEW_DEPARTMENTS":
-                viewAllDepartments();
-                break;
-            case "VIEW_ROLES":
-                viewAllRoles();
-                break;
-            case "VIEW_EMPLOYEES":
-                viewAllEmployees();
-                break;
-            case "ADD_DEPARTMENT":
-                createDepartment();
-                break;
-            case "ADD_ROLE":
-                createRole();
-                break;
-            case "ADD_EMPLOYEE":
-                createEmployee();
-                break;
-            case "UPDATE_EMPLOYEE_ROLE":
-                updateEmployeeRole();
-                break;
-            default:
-                quit();
-        }
-    }
-    )
+        }]).then(function (res) {
+            let choice = res.choice;
+            switch (choice) {
+                case "view all departments":
+                    viewAllDepartments();
+                    break;
+                case "view all roles":
+                    viewAllRoles();
+                    break;
+                case "view all employees":
+                    viewAllEmployees();
+                    break;
+                case "add a department":
+                    createDepartment();
+                    break;
+                case "add a role":
+                    createRole();
+                    break;
+                case "add an employee":
+                    createEmployee();
+                    break;
+                case "update employee role":
+                    updateEmployeeRole();
+                    break;
+                case "quit":
+                    return;
+            }
+        })
 }
 
-
-// View all employees
+//View all employees
 function viewAllEmployees() {
     db.allEmployees()
         .then(([rows]) => {
@@ -95,10 +55,9 @@ function viewAllEmployees() {
             console.log("\n");
             console.table(employees);
         })
-        .then(() => runPrompts());
+        .then(() => questions());
 }
-
-// View all roles
+//View all roles
 function viewAllRoles() {
     db.allRoles()
         .then(([rows]) => {
@@ -106,9 +65,8 @@ function viewAllRoles() {
             console.log("\n");
             console.table(roles);
         })
-        .then(() => runPrompts());
+        .then(() => questions());
 }
-
 // View all departments
 function viewAllDepartments() {
     db.allDepartments()
@@ -117,10 +75,9 @@ function viewAllDepartments() {
             console.log("\n");
             console.table(departments);
         })
-        .then(() => runPrompts());
+        .then(() => questions());
 }
-
-// Add a role
+// Add role
 function createRole() {
     db.allDepartments()
         .then(([rows]) => {
@@ -129,7 +86,6 @@ function createRole() {
                 name: name,
                 value: id
             }));
-
             prompt([
                 {
                     name: "title",
@@ -137,41 +93,36 @@ function createRole() {
                 },
                 {
                     name: "salary",
-                    message: "What is the salary rate?"
+                    message: "What is the salary for this role?"
                 },
                 {
                     type: "list",
                     name: "department_id",
-                    message: "Which department does the role fall in under?",
+                    message: "Which department does this role belong to?",
                     choices: departmentChoices
                 }
-            ])
-                .then(role => {
-                    db.addRole(role)
-                        .then(() => console.log(`Added ${role.title} to the database`))
-                        .then(() => runPrompts())
-                })
+            ]).then(role => {
+                db.addRole(role)
+                    .then(() => console.log(`Added ${role.title} to the database`))
+                    .then(() => questions())
+            })
         })
 }
-
-
-// Add a department
+// Add department
 function createDepartment() {
     prompt([
         {
             name: "name",
-            message: "What is the name of the department?"
+            message: "What is the name of the department"
         }
-    ])
-        .then(res => {
-            let name = res;
-            db.addDepartment(name)
-                .then(() => console.log(`Added ${name.name} to the database`))
-                .then(() => runPrompts())
-        })
+    ]).then(res => {
+        let name = res;
+        db.addDepartment(name)
+            .then(() => console.log(`Added ${name.name} to the database`))
+            .then(() => questions())
+    })
 }
-
-// Add an employee
+// Add employee
 function createEmployee() {
     prompt([
         {
@@ -230,19 +181,15 @@ function createEmployee() {
 
                                             db.addEmployee(employee);
                                         })
-                                        .then(() => console.log(
-                                            `Added ${firstName} ${lastName} to the database`
-                                        ))
-                                        .then(() => runPrompts())
+                                        .then(() => console.log(`Added ${firstName} ${lastName} to the database`))
+                                        .then(() => questions())
                                 })
                         })
                 })
         })
 }
 
-
-
-// Update an employee's role
+// Update employee role
 function updateEmployeeRole() {
     db.allEmployees()
         .then(([rows]) => {
@@ -256,7 +203,7 @@ function updateEmployeeRole() {
                 {
                     type: "list",
                     name: "employeeId",
-                    message: "Which employee's role do you want to update?",
+                    message: "Which employee's role do you need to change?",
                     choices: employeeChoices
                 }
             ])
@@ -269,23 +216,23 @@ function updateEmployeeRole() {
                                 name: title,
                                 value: id
                             }));
-
                             prompt([
                                 {
                                     type: "list",
                                     name: "roleId",
-                                    message: "What's the new role of this employee?",
+                                    message: "What's the employee's new role?",
                                     choices: roleChoices
                                 }
                             ])
                                 .then(res => db.updateEmployeeRole(employeeId, res.roleId))
-                                .then(() => console.log("Employee's role is updated"))
-                                .then(() => runPrompts())
+                                .then(() => console.log("Employee role is updated"))
+                                .then(() => questions())
                         });
                 });
         })
 }
-// Quit the application
+
+//End Sequence
 function quit() {
     process.exit();
 }
